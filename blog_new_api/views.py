@@ -34,5 +34,17 @@ class NoteDetailAPIView(APIView):
         return Response(serializers.note_to_json(note))
 
 
-    def put(self, request):
-        ...
+    def put(self, request, pk):
+        object = get_object_or_404(Note, pk=pk)
+        object.title = request.data['title']
+        object.message = request.data['message']
+        object.public = request.data['public']
+
+        object.save(force_update=True)
+
+        return Response(
+            serializers.note_created(object),
+            status = status.HTTP_201_CREATED
+        )
+
+
