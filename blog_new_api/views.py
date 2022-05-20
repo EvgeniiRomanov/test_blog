@@ -17,7 +17,7 @@ class NoteListCreateAPIView(APIView):
 
     def post(self, request: Request):
         data = request.data # считываем отправленный кнопкой POST json по http
-        note = Note(**data)  # формируем объект python для базы
+        note = Note(**data, author=request.user)  # формируем объект python для базы
         note.save(force_insert=True) # сохраняем в базе сформированный объект
 
         return Response(
