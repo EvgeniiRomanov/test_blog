@@ -125,7 +125,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True  # автоматическая система перевода включена
 
-USE_TZ = True
+USE_TZ = False # учитывать timezone, если False, учет UTC
 
 
 # Static files (CSS, JavaScript, Images)
