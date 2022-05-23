@@ -22,4 +22,5 @@ urlpatterns = [
     #path('', include('blog_get_post.urls')),
     path('', include('blog_new_api.urls')),
     path('', include('blog_new.urls')),
+    path('', include('login.urls')),
 ]

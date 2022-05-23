@@ -22,4 +22,6 @@ urlpatterns = [
     #path('blog_new/', views.SimpleView.as_view()),
     path('notes/', views.NoteListCreateAPIView.as_view()),
     path('notes/<int:pk>', views.NoteDetailAPIView.as_view()), # int регулярка
+    path('notes/public/', views.PublicNoteListAPIView.as_view())
+
 ]

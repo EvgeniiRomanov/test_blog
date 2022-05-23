@@ -11,7 +11,8 @@ class Note(models.Model):
     update_at = models.DateTimeField(auto_now=True, verbose_name='Время обновления')
     # email = models.EmailField(default='', verbose_name='Email')
 
-    author = models.ForeignKey(User, to_field='id', on_delete=models.CASCADE)     # удаляем все записи пользователя
+    # author = models.ForeignKey(User, to_field='id', on_delete=models.CASCADE)     # удаляем все записи пользователя
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):   # отображение запись объекта в читаемой форме
         return f"Запись №{self.id}"
