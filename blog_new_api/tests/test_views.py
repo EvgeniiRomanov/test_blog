@@ -45,9 +45,11 @@ class TestNoteListCreateAPIView(APITestCase):
     @unittest.skip("ЕЩЕ НЕ РЕАЛИЗОВАН")
     def test_create_objects(self):
         # формируем дату json которую мы отправляем на сервер
-        new_title = "test_title"
+        new_title = "TEST from title"
         data = {
-             "title": new_title
+            "title": new_title,
+            "message": "Тестируем создание объекта",
+            "public": True
         }
         url = "/notes/"
         # отправили пост запрос и создался объект в таблице
@@ -58,17 +60,17 @@ class TestNoteListCreateAPIView(APITestCase):
         Note.objects.get(title=new_title)  # exists assertTrue()
 
 
-
 class TestNoteDetailAPIView(APITestCase):
     """Класс тестов для отдельных объектов базы"""
 
     @classmethod
     def setUpTestData(cls):  # создаем тест данные один раз на все тесты внутри данного класса
         User.objects.create(username='test@test.ru')                        # создаем пользователя
-        Note.objects.create(title='Заголовок из тестов 1', author_id=1)     # создаем запись
+        Note.objects.create(title='Заголовок из тестов 1', author_id=1)     # создаем 2 запись
+        Note.objects.create(title='Заголовок из тестов 2', author_id=1)     # создаем 1 запись
 
     def test_retrieve_object(self):
-        note_pk = 1                     # id записи
+        note_pk = 2                     # id записи
         url = f"/notes/{note_pk}"       #
 
         resp = self.client.get(url)    # запрос
@@ -76,8 +78,8 @@ class TestNoteDetailAPIView(APITestCase):
 
         # нам прилетел resp с data
         expected_data = {
-            "id": 1,
-            "title": 'Заголовок из тестов 1',
+            "id": 2,
+            "title": 'Заголовок из тестов 2',
             "message": '',
             "public": False
             #"create_at": ''   # не работает если раскоментить с ней из-за serializer.py
@@ -92,9 +94,46 @@ class TestNoteDetailAPIView(APITestCase):
         resp = self.client.get(url)
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
 
-
     def test_update_object(self):
-        pass
+        # создаем запись
+        Note.objects.create(
+            title='Заголовок на изменение',
+            message="Тут есть данные для изменения",
+            public=False,
+            author_id=1)
+
+        # Делаем запрос на извлечение
+        note_pk = 3
+        url = f"/notes/{note_pk}"
+        resp = self.client.get(url)
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+
+        # проверяем извлеченную запись
+        expected_data = {
+            "id": 3,
+            "title": 'Заголовок на изменение',
+            "message": 'Тут есть данные для изменения',
+            "public": False
+        }
+
+        self.assertDictEqual(expected_data, resp.data)
+
+        # формируем ожидаемое обновление
+        expected_update_data = {
+            "id": 3,
+            "title": 'Обновленный заголовок',
+            "message": 'Обновленное сообщение',
+            "public": False
+        }
+
+        # проверка успешности создания обновления
+        resp_update = self.client.put(url, expected_update_data)
+        self.assertEqual(status.HTTP_201_CREATED, resp_update.status_code)
+
+        # считывание измененных данных и проверка обновленных полей
+        resp2 = self.client.get(url)
+        self.assertEqual(status.HTTP_200_OK, resp2.status_code)
+        self.assertDictEqual(expected_update_data, resp2.data)
 
     def test_partial_update_object(self):
         pass

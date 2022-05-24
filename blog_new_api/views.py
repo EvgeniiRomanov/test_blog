@@ -58,7 +58,7 @@ class NoteDetailAPIView(APIView):
         # note = Note.objects.get(pk=pk)
         # return Response(serializers.note_to_json(note))
         note = get_object_or_404(Note, pk=pk)   # обработка ошибок если нет такого номера
-        #return Response(serializers.note_to_json(note))     # закомментил на 3 практике
+        return Response(serializers.note_to_json(note))     # закомментил на 3 практике
 
 
     def put(self, request, pk):
