@@ -26,32 +26,9 @@ from . import serializers
 #             status=status.HTTP_201_CREATED
 #         ) #
 
-
 # сериализация классами
 from blog_new_api import serializers, filters
 from rest_framework.generics import ListAPIView    # получаем ключевые действия
-
-
-class NoteListCreateAPIView(APIView):
-    """Read all list"""
-    def get(self, request:Request):
-        notes = Note.objects.all()
-        serializer = serializers.NoteSerializer(
-            instance=notes, # передаем экземпляры
-            many=True,
-        )
-
-        return Response(data = serializer.data)
-
-    def post(self, request: Request):
-        serializer = serializers.NoteSerializer(
-            data=request.data
-        )
-        serializer.is_valid(raise_exception=True)  # проверка сырых данных и если ошибка, возврат ошибки (типа 404)
-        serializer.save(author=request.user)  # сохранияем в базе (в скобках берем автора, которого типа скрыли в модели)
-
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-
 
 class NoteDetailAPIView(APIView):
     def get(self, request, pk):
@@ -59,7 +36,6 @@ class NoteDetailAPIView(APIView):
         # return Response(serializers.note_to_json(note))
         note = get_object_or_404(Note, pk=pk)   # обработка ошибок если нет такого номера
         return Response(serializers.note_to_json(note))     # закомментил на 3 практике
-
 
     def put(self, request, pk):
         object = get_object_or_404(Note, pk=pk)
@@ -74,7 +50,36 @@ class NoteDetailAPIView(APIView):
             status = status.HTTP_201_CREATED
         )
 
+    # сериализация классами
+    from blog_new_api import serializers, filters
+    from rest_framework.generics import ListAPIView  # получаем ключевые действия
+
+class NoteListCreateAPIView(APIView):
+    """Read all list"""
+
+    def get(self, request: Request):
+        notes = Note.objects.all()
+        serializer = serializers.NoteSerializer(
+            instance=notes,  # передаем экземпляры
+            many=True,
+        )
+
+        return Response(data=serializer.data)
+
+    def post(self, request: Request):
+        serializer = serializers.NoteSerializer(
+            data=request.data  # кладем введенный json
+        )
+        serializer.is_valid(raise_exception=True)  # проверка сырых данных и если ошибка, возврат ошибки (типа 404)
+        serializer.save(
+            author=request.user)  # сохранияем в базе (в скобках берем автора, которого типа скрыли в модели)
+
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+
     # практика 3 (02:15) распивывали put через классы
+
+
 
     # generics - альтернитива тому что мы писали раньше
     #

@@ -10,7 +10,7 @@ def note_to_json(note) -> dict:
         "title": note.title,
         "message": note.message,
         "public": note.public,          # в методе put - false или true (регистр важен)
-        #"create_at": note.create_at,   # нужно комментить в тестах  TestNoteDetailAPIView(APITestCase):
+        "create_at": note.create_at,   # нужно комментить в тестах  TestNoteDetailAPIView(APITestCase):
     }
 
 
@@ -32,11 +32,11 @@ from rest_framework import serializers
 from blog_new.models import Note
 
 
-# выдача всех полей
+# выдача всех полей - определяет как выглядят выходные данные пользователю
 class NoteSerializer(serializers.ModelSerializer):
     class Meta:             # хранит внутри конфигурации, имя именно это
         model = Note        # accept model
-        fields = "__all__"  # show all fields
+        fields = "__all__"  # show all fields (либо exclude = ('public', ))
         read_only_fields = ("author", )  # только для чтения, что бы в post не отображался что итипа обязат поле
 
 

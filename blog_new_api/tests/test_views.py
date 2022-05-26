@@ -42,22 +42,31 @@ class TestNoteListCreateAPIView(APITestCase):
 
 
     # ОБЕЩАЛ на 3 лекции показать на 3 практике как создавать
-    @unittest.skip("ЕЩЕ НЕ РЕАЛИЗОВАН")
+    #@unittest.skip("ЕЩЕ НЕ РЕАЛИЗОВАН")
     def test_create_objects(self):
-        # формируем дату json которую мы отправляем на сервер
+
+        Note.objects.create(
+            id=1,
+            title='Тест создание объекта Note',
+            message='Создан Note',
+            public=True,
+            author_id=1)
+
         new_title = "TEST from title"
-        data = {
+        new_data = {
+            "id": 2,
             "title": new_title,
             "message": "Тестируем создание объекта",
-            "public": True
+            "public": True,
+            "author_id": 1
         }
         url = "/notes/"
         # отправили пост запрос и создался объект в таблице
-        resp = self.client.post(url)
+        resp = self.client.post(url, new_data)
         self.assertEqual(status.HTTP_201_CREATED, resp.status_code)
 
         # забираем объект из базы, если оюъект не найден, вернет ошибку does not exist
-        Note.objects.get(title=new_title)  # exists assertTrue()
+        # Note.objects.get(title=new_title)  # exists assertTrue()
 
 
 class TestNoteDetailAPIView(APITestCase):
@@ -66,9 +75,10 @@ class TestNoteDetailAPIView(APITestCase):
     @classmethod
     def setUpTestData(cls):  # создаем тест данные один раз на все тесты внутри данного класса
         User.objects.create(username='test@test.ru')                        # создаем пользователя
-        Note.objects.create(title='Заголовок из тестов 1', author_id=1)     # создаем 2 запись
-        Note.objects.create(title='Заголовок из тестов 2', author_id=1)     # создаем 1 запись
+        Note.objects.create(title='Заголовок из тестов 1', author_id=1)     # создаем 1 запись
+        Note.objects.create(title='Заголовок из тестов 2', author_id=1)     # создаем 2 запись
 
+    # обновление существующей записи
     def test_retrieve_object(self):
         note_pk = 2                     # id записи
         url = f"/notes/{note_pk}"       #
@@ -118,7 +128,7 @@ class TestNoteDetailAPIView(APITestCase):
 
         self.assertDictEqual(expected_data, resp.data)
 
-        # формируем ожидаемое обновление
+        # формируем обновление
         expected_update_data = {
             "id": 3,
             "title": 'Обновленный заголовок',
