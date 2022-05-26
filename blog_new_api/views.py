@@ -8,7 +8,11 @@ from django.shortcuts import get_object_or_404
 from blog_new.models import Note  # подтягиваем модель, из др приложения
 from . import serializers
 
-# сериализация функциями
+# сериализация классами
+from blog_new_api import serializers, filters
+from rest_framework.generics import ListAPIView
+
+# сериализация функциями Read all list
 # class NoteListCreateAPIView(APIView):
 #     """Read all list"""
 #     def get(self, request:Request):
@@ -26,34 +30,8 @@ from . import serializers
 #             status=status.HTTP_201_CREATED
 #         ) #
 
-# сериализация классами
-from blog_new_api import serializers, filters
-from rest_framework.generics import ListAPIView    # получаем ключевые действия
 
-class NoteDetailAPIView(APIView):
-    def get(self, request, pk):
-        # note = Note.objects.get(pk=pk)
-        # return Response(serializers.note_to_json(note))
-        note = get_object_or_404(Note, pk=pk)   # обработка ошибок если нет такого номера
-        return Response(serializers.note_to_json(note))     # закомментил на 3 практике
-
-    def put(self, request, pk):
-        object = get_object_or_404(Note, pk=pk)
-        object.title = request.data['title']
-        object.message = request.data['message']
-        object.public = request.data['public']
-
-        object.save(force_update=True)
-
-        return Response(
-            serializers.note_created(object),
-            status = status.HTTP_201_CREATED
-        )
-
-    # сериализация классами
-    from blog_new_api import serializers, filters
-    from rest_framework.generics import ListAPIView  # получаем ключевые действия
-
+# сериализация классами Read all list
 class NoteListCreateAPIView(APIView):
     """Read all list"""
 
@@ -63,7 +41,6 @@ class NoteListCreateAPIView(APIView):
             instance=notes,  # передаем экземпляры
             many=True,
         )
-
         return Response(data=serializer.data)
 
     def post(self, request: Request):
@@ -76,13 +53,60 @@ class NoteListCreateAPIView(APIView):
 
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
-
     # практика 3 (02:15) распивывали put через классы
 
+# сериализация функциями /notes/pk
+# class NoteDetailAPIView(APIView):
+#     """/notes/pk"""
+#     def get(self, request, pk):
+#         # note = Note.objects.get(pk=pk)
+#         # return Response(serializers.note_to_json(note))
+#         note = get_object_or_404(Note, pk=pk)  # обработка ошибок если нет такого номера
+#         return Response(serializers.note_to_json(note))  # закомментил на 3 практике
+#
+#     def put(self, request, pk):
+#         object = get_object_or_404(Note, pk=pk)
+#         object.title = request.data['title']
+#         object.message = request.data['message']
+#         object.public = request.data['public']
+#
+#         object.save(force_update=True)
+#
+#         return Response(
+#             serializers.note_created(object),
+#             status=status.HTTP_201_CREATED
+#         )
 
 
-    # generics - альтернитива тому что мы писали раньше
-    #
+# сериализация классами /notes/pk
+class NoteDetailAPIView(APIView):
+    """/notes/pk"""
+    def get(self, request, pk):
+        note = get_object_or_404(Note, pk=pk)  # обработка ошибок если нет такого номера
+        serializer = serializers.NoteDetailSerializer(     #serializer = serializers.NoteSerializer
+            instance=note,
+        )
+        return Response(serializer.data)  # закомментил на 3 практике
+
+    def put(self, request, pk):
+        object = get_object_or_404(Note, pk=pk)
+        object.title = request.data['title']
+        object.message = request.data['message']
+        object.public = request.data['public']
+
+        object.save(force_update=True)
+
+        return Response(
+            serializers.note_created(object),
+            status=status.HTTP_201_CREATED
+        )
+
+
+
+
+
+
+# generics - альтернитива тому что мы писали раньше
 class PublicNoteListAPIView(ListAPIView):
     """/notes/public/"""
     queryset = Note.objects.all()   #(public=True) - отображать только пубуличные, но так не правильно ограничивать

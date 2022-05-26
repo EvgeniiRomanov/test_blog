@@ -33,7 +33,6 @@ class Comment(models.Model):
 
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
     note = models.ForeignKey(Note, on_delete=models.CASCADE, verbose_name="Запись")
-    #note1 =
     rating = models.IntegerField(default=Ratings.WITHOUT_RATING, choices=Ratings.choices, verbose_name="Оценка")
 
     def __str__(self):
