@@ -1,4 +1,5 @@
 """Сериализуем объекты из БД в json и обратно разными способами"""
+from datetime import datetime
 
 # Сериализация классами
 from rest_framework import serializers
@@ -35,23 +36,33 @@ class NoteSerializer(serializers.ModelSerializer):
     class Meta:             # хранит внутри конфигурации, имя именно это
         model = Note        # accept model
         fields = "__all__"  # show all fields (либо exclude = ('public', ))
-        read_only_fields = ("author", )  # только для чтения, что бы в post не отображался что итипа обязат поле
+        read_only_fields = ("author", )  # только для чтения, что бы в post не отображался как обязат поле
 
 
-# вариант когда урезаем выдачу полей
-class MiniNoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Note
-        fields = ('id', "author", "message")  # show all fields, как аналог можно просто исключить -
-                                              # какое-то поле exclude = ("id", )
-        read_only_fields = ("author", )
+# # вариант когда урезаем выдачу полей
+# class MiniNoteSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Note
+#         fields = ('id', "author", "message")  # show all fields, как аналог можно просто исключить -
+#                                               # какое-то поле exclude = ("id", )
+#         read_only_fields = ("author", )
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Для замены поля rating из Comment, перезаписываем его сериалайзером"""
+    rating = serializers.SerializerMethodField('get_rating')
+
+    def get_rating(self, obj: Comment):
+        return {
+            'value': obj.rating,
+            'display': obj.get_rating_display()  # из models Comment
+        }
+
     class Meta:
         model = Comment
         fields = "__all__"
-        #exclude = ("id", "note", )
+        # exclude = ("id", "note", )
+
 
 class NoteDetailSerializer(serializers.ModelSerializer):
     """/notes/pk"""
@@ -62,11 +73,20 @@ class NoteDetailSerializer(serializers.ModelSerializer):
         slug_field="username",  # new field to show
         read_only=True
     )
-    comment_set = CommentSerializer(many=True, read_only=True)
+    comments = CommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Note
         fields = (
-            'title', 'message', 'create_at', 'update_at',  # from model
-            'author', 'comment_set'                        # from serializer
+            'title', 'message', 'public', 'create_at', 'update_at',  # from model
+            'author', 'comments'                        # from serializer
         )
+
+    def to_representation(self, instance):
+        """Меняем формат вывода даты в ответе"""
+        ret = super().to_representation(instance)
+        create_at = datetime.strptime(ret['create_at'], '%Y-%m-%dT%H:%M:%S.%f')
+        update_at = datetime.strptime(ret['update_at'], '%Y-%m-%dT%H:%M:%S.%f')
+        ret['create_at'] = create_at.strftime('%d %B %Y %H:%M:%S')
+        ret['update_at'] = update_at.strftime('%d %B %Y %H:%M:%S')
+        return ret

@@ -101,11 +101,6 @@ class NoteDetailAPIView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-
-
-
-
-
 # generics - альтернитива тому что мы писали раньше
 class PublicNoteListAPIView(ListAPIView):
     """/notes/public/"""

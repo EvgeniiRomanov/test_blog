@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _ # для шаблонов с именами
-from django.contrib.auth.models import User #для оформления пользователей
+from django.contrib.auth.models import User # для оформления пользователей
+
 
 # Create your models here.
 class Note(models.Model):
@@ -31,9 +32,13 @@ class Comment(models.Model):
         GOOD = 4, _("Хорошо")
         EXCELLENT = 5, _("Отлично")
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
-    note = models.ForeignKey(Note, on_delete=models.CASCADE, verbose_name="Запись")
-    rating = models.IntegerField(default=Ratings.WITHOUT_RATING, choices=Ratings.choices, verbose_name="Оценка")
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               verbose_name="Автор")
+    note = models.ForeignKey(Note, on_delete=models.CASCADE,
+                             verbose_name="Запись",
+                             related_name='comments')  # related_name = 'comments' - затирает comment_set
+    rating = models.IntegerField(default=Ratings.WITHOUT_RATING, choices=Ratings.choices,
+                                 verbose_name="Оценка")
 
     def __str__(self):
         return f"{self.get_rating_display()}: {self.author}"
@@ -41,3 +46,8 @@ class Comment(models.Model):
     class Meta:   # украшения по именам для модели, что бы отображалась по рус
         verbose_name = _("Комментарий")
         verbose_name_plural = _('Комментарии')
+
+    # установка на уровне модели доп атрибута, пользуемся ими дальше как атрибутом
+    # @property
+    # def property(self):
+    #     return self.
