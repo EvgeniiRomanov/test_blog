@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -6,7 +7,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 from blog_new.models import Note  # подтягиваем модель, из др приложения
-from . import serializers
+from . import serializers, filters
 
 # сериализация классами
 from blog_new_api import serializers, filters
@@ -53,7 +54,7 @@ class NoteListCreateAPIView(APIView):
 
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
-    # практика 3 (02:15) распивывали put через классы
+
 
 # сериализация функциями /notes/pk
 # class NoteDetailAPIView(APIView):
@@ -76,7 +77,7 @@ class NoteListCreateAPIView(APIView):
 #             serializers.note_created(object),
 #             status=status.HTTP_201_CREATED
 #         )
-
+# практика 3 (02:15) распивывали put через классы
 
 # сериализация классами /notes/pk
 class NoteDetailAPIView(APIView):
@@ -102,15 +103,16 @@ class NoteDetailAPIView(APIView):
         )
 
 # generics - альтернитива тому что мы писали раньше
-class PublicNoteListAPIView(ListAPIView):
+class PublicNoteListAPIView(ListAPIView): # ListAPIView возвращает только список объектов с которыми работали, post и put тут нет
     """/notes/public/"""
-    queryset = Note.objects.all()   #(public=True) - отображать только пубуличные, но так не правильно ограничивать
+    queryset = Note.objects.all()   #(public=True) - отображать только пубуличные, но так не хорошо, лучше фильтрами
     serializer_class = serializers.NoteSerializer
 
     def get_queryset(self):                         # получем данные с которыми будем работать
-        queryset = super().get_queryset()            # получаем полную копию
-        return queryset.filter(public=True)           # фильтруем (author=self.request.user, public = True)
 
+        queryset = super().get_queryset()            # получаем полную копию
+        return queryset.filter(public=False).order_by('id') # фильтруем (author=self.request.user, public = True)
+                                                                  # order_by (выбор столбца упорядочивания)
     def filter_queryset(self, queryset):
        # queryset = super().filter_queryset(queryset)   #
         #self.request.query_params.get("author_id", None)

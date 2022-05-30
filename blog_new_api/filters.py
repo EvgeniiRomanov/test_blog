@@ -12,3 +12,4 @@ def note_filter_by_author_id(queryset: QuerySet, author_id: Optional[int]):
         return queryset.filter(author_id=author_id)
     else:
         return queryset
+

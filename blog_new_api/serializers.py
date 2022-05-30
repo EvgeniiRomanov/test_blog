@@ -38,6 +38,14 @@ class NoteSerializer(serializers.ModelSerializer):
         fields = "__all__"  # show all fields (либо exclude = ('public', ))
         read_only_fields = ("author", )  # только для чтения, что бы в post не отображался как обязат поле
 
+    # def to_representation(self, instance):
+    #     """Меняем формат вывода даты в ответе"""
+    #     ret = super().to_representation(instance)
+    #     create_at = datetime.strptime(ret['create_at'], '%Y-%m-%dT%H:%M:%S.%f')
+    #     update_at = datetime.strptime(ret['update_at'], '%Y-%m-%dT%H:%M:%S.%f')
+    #     ret['create_at'] = create_at.strftime('%d %B %Y %H:%M:%S')
+    #     ret['update_at'] = update_at.strftime('%d %B %Y %H:%M:%S')
+    #     return ret
 
 # # вариант когда урезаем выдачу полей
 # class MiniNoteSerializer(serializers.ModelSerializer):
